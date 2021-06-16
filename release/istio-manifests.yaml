@@ -11,7 +11,7 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "*"
+    - "onlineboutique.exmple.com"
 
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -21,7 +21,7 @@ metadata:
   namespace: default
 spec:
   hosts:
-    - "*"
+    - "onlineboutique.example.com"
   gateways:
     - onlineboutique-gateway
   http:
