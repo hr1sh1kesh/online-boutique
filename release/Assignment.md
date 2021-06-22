@@ -168,11 +168,11 @@ subject=CN = frontend.example.com, O = frontend organization
 Getting CA Private Key
 infracloud@Sumedh ~/certs $ ll
 total 20K
--rw-rw-r-- 1 sumedh sumedh 1.1K Jun 15 17:06 frontend.example.com.crt
--rw-rw-r-- 1 sumedh sumedh  948 Jun 15 17:06 frontend.example.com.csr
--rw------- 1 sumedh sumedh 1.7K Jun 15 17:06 frontend.example.com.key
--rw-rw-r-- 1 sumedh sumedh 1.2K Jun 15 17:06 onlineboutique.com.crt
--rw------- 1 sumedh sumedh 1.7K Jun 15 17:06 onlineboutique.com.key
+-rw-rw-r-- 1 sumedh sumedh 1.1K Jun 15 18:09 frontend.example.com.crt
+-rw-rw-r-- 1 sumedh sumedh  948 Jun 15 18:09 frontend.example.com.csr
+-rw------- 1 sumedh sumedh 1.7K Jun 15 18:09 frontend.example.com.key
+-rw-rw-r-- 1 sumedh sumedh 1.2K Jun 15 18:09 onlineboutique.com.crt
+-rw------- 1 sumedh sumedh 1.7K Jun 15 18:09 onlineboutique.com.key
 infracloud@Sumedh ~/Desktop/network/certs $ kubectl create -n istio-system secret tls frontend-credential --key=frontend.example.com.key --cert=frontend.example.com.crt
 secret/frontend-credential created
 infracloud@Sumedh ~/istio-assignment/online-boutique/release$ kubectl apply -f secure-gateway.yaml
