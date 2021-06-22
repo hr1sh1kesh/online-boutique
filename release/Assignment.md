@@ -166,7 +166,7 @@ Follow the steps from the documentation [https://istio.io/latest/docs/tasks/traf
 Signature ok
 subject=CN = frontend.example.com, O = frontend organization
 Getting CA Private Key
-amodi@infracloud ~/Desktop/network/certs $ ll
+infracloud@Sumedh ~/certs $ ll
 total 20K
 -rw-rw-r-- 1 sumedh sumedh 1.1K Jun 15 17:06 frontend.example.com.crt
 -rw-rw-r-- 1 sumedh sumedh  948 Jun 15 17:06 frontend.example.com.csr
@@ -175,8 +175,7 @@ total 20K
 -rw------- 1 sumedh sumedh 1.7K Jun 15 17:06 onlineboutique.com.key
 infracloud@Sumedh ~/Desktop/network/certs $ kubectl create -n istio-system secret tls frontend-credential --key=frontend.example.com.key --cert=frontend.example.com.crt
 secret/frontend-credential created
-infracloud@Sumedh ~/Desktop/network/certs $
-infracloud@Sumedh ~/Projects/istio-assignment/online-boutique/release/network (istio-assignment*?) $ k apply -f secure-gateway.yaml
+infracloud@Sumedh ~/istio-assignment/online-boutique/release$ kubectl apply -f secure-gateway.yaml
 gateway.networking.istio.io/onlineboutique-gateway configured
 ```
 Verified connection : 
