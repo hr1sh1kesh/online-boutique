@@ -120,6 +120,7 @@ infracloud@Sumedh:~/online-boutique/release$ for ((i=0; i<2; i++)); do curl -s -
 ```
 Apply The manifest file `routing-header.yaml` which create the VS which routes the traffic as per the browser used.
 Version 1 service is routed to Mozilla firefox while version 2 service routed to chrome browser.
+
 **exercise - 4:**
 ```bash
 4) Timeout
@@ -167,15 +168,15 @@ subject=CN = frontend.example.com, O = frontend organization
 Getting CA Private Key
 amodi@infracloud ~/Desktop/network/certs $ ll
 total 20K
--rw-rw-r-- 1 amodi amodi 1.1K Jun 15 17:06 frontend.example.com.crt
--rw-rw-r-- 1 amodi amodi  948 Jun 15 17:06 frontend.example.com.csr
--rw------- 1 amodi amodi 1.7K Jun 15 17:06 frontend.example.com.key
--rw-rw-r-- 1 amodi amodi 1.2K Jun 15 17:06 onlineboutique.com.crt
--rw------- 1 amodi amodi 1.7K Jun 15 17:06 onlineboutique.com.key
-amodi@infracloud ~/Desktop/network/certs $ kubectl create -n istio-system secret tls frontend-credential --key=frontend.example.com.key --cert=frontend.example.com.crt
+-rw-rw-r-- 1 sumedh sumedh 1.1K Jun 15 17:06 frontend.example.com.crt
+-rw-rw-r-- 1 sumedh sumedh  948 Jun 15 17:06 frontend.example.com.csr
+-rw------- 1 sumedh sumedh 1.7K Jun 15 17:06 frontend.example.com.key
+-rw-rw-r-- 1 sumedh sumedh 1.2K Jun 15 17:06 onlineboutique.com.crt
+-rw------- 1 sumedh sumedh 1.7K Jun 15 17:06 onlineboutique.com.key
+infracloud@Sumedh ~/Desktop/network/certs $ kubectl create -n istio-system secret tls frontend-credential --key=frontend.example.com.key --cert=frontend.example.com.crt
 secret/frontend-credential created
-amodi@infracloud ~/Desktop/network/certs $
-amodi@infracloud ~/Projects/istio-assignment/online-boutique/release/network (istio-assignment*?) $ k apply -f secure-gateway.yaml
+infracloud@Sumedh ~/Desktop/network/certs $
+infracloud@Sumedh ~/Projects/istio-assignment/online-boutique/release/network (istio-assignment*?) $ k apply -f secure-gateway.yaml
 gateway.networking.istio.io/onlineboutique-gateway configured
 ```
 Verified connection : 
