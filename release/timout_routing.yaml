@@ -11,31 +11,26 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "onlineboutique.exmple.com"
+    - "*"
 
 ---
-apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: frontend-vs
+  name: productcatalogservice
   namespace: default
-spec:
+  spec:
   hosts:
-    - "onlineboutique.example.com"
-  gateways:
-    - onlineboutique-gateway
+    - productcatalogservice.default.svc.cluster.local
   http:
-  - route:
-     - destination:
-         host: frontend
-         subset: v1
-       weight: 50
-     - destination:
-         host: frontend
-         subset: v2
-       weight: 50
-  
+    - route:
+        - destination:
+            host: productcatalogservice.default.svc.cluster.local
+            subset: v2
+      timeout: 3s       
+
 ---
+
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -49,3 +44,4 @@ spec:
   - name: v2
     labels:
       version: v2
+

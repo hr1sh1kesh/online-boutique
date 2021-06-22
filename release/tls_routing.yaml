@@ -7,12 +7,14 @@ spec:
     istio: ingressgateway # use istio default controller
   servers:
   - port:
-      number: 80
+      number: 443
       name: http
-      protocol: HTTP
+      protocol: HTTPS
+    tls:
+     mode: SIMPLE
+     credentialName: frontend-credential    
     hosts:
-    - "onlineboutique.exmple.com"
-
+    - "*"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -21,7 +23,7 @@ metadata:
   namespace: default
 spec:
   hosts:
-    - "onlineboutique.example.com"
+    - "*"
   gateways:
     - onlineboutique-gateway
   http:
@@ -34,7 +36,7 @@ spec:
          host: frontend
          subset: v2
        weight: 50
-  
+
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -49,3 +51,4 @@ spec:
   - name: v2
     labels:
       version: v2
+
