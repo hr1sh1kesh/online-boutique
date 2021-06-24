@@ -272,13 +272,16 @@ Exercise 5 :
 
 Que : Setup a TLS ingress gateway for the frontend service. Generate self signed certificates and add them to the Ingress Gateway for TLS communication.
 
-Solution : Generate Self signed root ca and certs file using below commands 
+Solution : 
+         1) Generate Self signed root ca and certs file using below commands 
             (Reference : https://istio.io/latest/docs/tasks/traffic-management/ingress/secure-ingress/)
             i) openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -subj '/O=example Inc./CN=example.com' -keyout example.com.key -out example.com.crt
           
             ii) openssl req -out onlineboutique.example.com.csr -newkey rsa:2048 -nodes -keyout onlineboutique.example.com.key -subj "/CN=onlineboutique.example.com/O=Infracloud"
                    
           iii) openssl x509 -req -days 365 -CA example.com.crt -CAkey example.com.key -set_serial 0 -in onlineboutique.example.com.csr -out onlineboutique.example.com.crt
+	  
+	 2) Apply Manifests istio-secure-virtual-service.yaml & istio-secure-gateway.yaml
           
 Verification :
 ```yaml
