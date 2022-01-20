@@ -473,3 +473,71 @@ spec:
         subset: v1
 
 ```
+Test:
+
+```
+sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/certs$ curl -vs --cacert example.com.crt  https://onlineboutique.example.com | grep -i 'free shipping'
+*   Trying 172.18.255.200:443...
+* Connected to onlineboutique.example.com (172.18.255.200) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+*  CAfile: example.com.crt
+*  CApath: /etc/ssl/certs
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [15 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [758 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: CN=onlineboutique.example.com; O=httpbin organization
+*  start date: Jan 20 07:42:51 2022 GMT
+*  expire date: Jan 20 07:42:51 2023 GMT
+*  common name: onlineboutique.example.com (matched)
+*  issuer: O=example Inc.; CN=example.com
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multi-use
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+} [5 bytes data]
+* Using Stream ID: 1 (easy handle 0x5601b9811580)
+} [5 bytes data]
+> GET / HTTP/2
+> Host: onlineboutique.example.com
+> user-agent: curl/7.74.0
+> accept: */*
+> 
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [230 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [230 bytes data]
+* old SSL session ID is stale, removing
+{ [5 bytes data]
+* Connection state changed (MAX_CONCURRENT_STREAMS == 2147483647)!
+} [5 bytes data]
+< HTTP/2 200 
+< set-cookie: shop_session-id=53b69541-d8cb-47f4-b641-7cc4333e6371; Max-Age=172800
+< date: Thu, 20 Jan 2022 12:37:17 GMT
+< content-type: text/html; charset=utf-8
+< x-envoy-upstream-service-time: 5058
+< server: istio-envoy
+< 
+{ [7960 bytes data]
+                <div class="h-free-shipping">Free shipping with $75 purchase! &nbsp;&nbsp;</div>
+* Connection #0 to host onlineboutique.example.com left intact
+```
