@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: onlineboutique
+spec:
+  hosts:
+  - "onlineboutique.example.com"
+  gateways:
+  - onlineboutique
+  http:
+  - route:
+    - destination:
+        host: frontend
+        port:
+          number: 80
