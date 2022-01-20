@@ -215,20 +215,7 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
 { [7968 bytes data]
                 <div class="h-free-shipping">Free shipping with $75 purchase! &nbsp;&nbsp;</div>
 * Connection #0 to host onlineboutique.example.com left intact
-*   Trying 172.18.255.200:80...
-* Connected to 172.18.255.200 (172.18.255.200) port 80 (#1)
-> GET / HTTP/1.1
-> Host: 172.18.255.200
-> Accept: */*
-> User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0
-> 
-* Mark bundle as not supporting multiuse
-< HTTP/1.1 404 Not Found
-< date: Thu, 20 Jan 2022 11:13:13 GMT
-< server: istio-envoy
-< content-length: 0
-< 
-* Connection #1 to host 172.18.255.200 left intact
+
 
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0" HOST: "onlineboutique.example.com" http://172.18.255.200 -v | grep -i 'free shipping'
 * Closing connection -1
@@ -252,19 +239,6 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
 * Connection #0 to host onlineboutique.example.com left intact
                 <div class="h-free-shipping">Free shipping with $75 purchase! &nbsp;&nbsp;</div>
 *   Trying 172.18.255.200:80...
-* Connected to 172.18.255.200 (172.18.255.200) port 80 (#1)
-> GET / HTTP/1.1
-> Host: 172.18.255.200
-> Accept: */*
-> User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0
-> 
-* Mark bundle as not supporting multiuse
-< HTTP/1.1 404 Not Found
-< date: Thu, 20 Jan 2022 11:13:15 GMT
-< server: istio-envoy
-< content-length: 0
-< 
-* Connection #1 to host 172.18.255.200 left intact
 
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i" HOST: "onlineboutique.example.com" http://172.18.255.200 -v | grep -i 'free shipping'
 * Closing connection -1
@@ -287,20 +261,6 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
 { [6978 bytes data]
                 <div class="h-free-shipping">Free shipping with $100 purchase! &nbsp;&nbsp;</div>
 * Connection #0 to host onlineboutique.example.com left intact
-*   Trying 172.18.255.200:80...
-* Connected to 172.18.255.200 (172.18.255.200) port 80 (#1)
-> GET / HTTP/1.1
-> Host: 172.18.255.200
-> Accept: */*
-> User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i
-> 
-* Mark bundle as not supporting multiuse
-< HTTP/1.1 404 Not Found
-< date: Thu, 20 Jan 2022 11:13:26 GMT
-< server: istio-envoy
-< content-length: 0
-< 
-* Connection #1 to host 172.18.255.200 left intact
 
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i" HOST: "onlineboutique.example.com" http://172.18.255.200 -v | grep -i 'free shipping'
 * Closing connection -1
@@ -323,18 +283,92 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
 { [3885 bytes data]
                 <div class="h-free-shipping">Free shipping with $100 purchase! &nbsp;&nbsp;</div>
 * Connection #0 to host onlineboutique.example.com left intact
+
+4. Timeout:
+This is a slightly different lab. You need to tighten the boundaries of acceptable latency in this lab.
+Delete the productcatalogservice. There is a lot of latency between the frontend and the productcatalogv2 service. add a timeout of 3s. (You need to produce a 504 Gateway timeout error).
+
+```
+Created product-svc virtual service for productcatalogservice and added fault injection
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: product-svc
+spec:
+  hosts:
+  - productcatalogservice
+  http:
+  - route:
+    - destination:
+        host: productcatalogservice
+    fault:
+      delay:
+        fixedDelay: 5s
+        percent: 100
+
+Added timeout in frontend Visrtual service
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: onlineboutique
+spec:
+  hosts:
+  - "onlineboutique.example.com"
+  gateways:
+  - onlineboutique
+  http:
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Firefox/.*"
+    route:
+    - destination:
+        host: frontend
+        subset: v1
+    timeout: 3s    
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Chrome/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v2
+    timeout: 3s
+
+Test:
+
+sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i" HOST: "onlineboutique.example.com" http://172.18.255.200 -v
+* Closing connection -1
 *   Trying 172.18.255.200:80...
-* Connected to 172.18.255.200 (172.18.255.200) port 80 (#1)
+* Connected to onlineboutique.example.com (172.18.255.200) port 80 (#0)
 > GET / HTTP/1.1
-> Host: 172.18.255.200
+> Host: onlineboutique.example.com
 > Accept: */*
 > User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i
 > 
 * Mark bundle as not supporting multiuse
-< HTTP/1.1 404 Not Found
-< date: Thu, 20 Jan 2022 11:13:30 GMT
+< HTTP/1.1 504 Gateway Timeout
+< content-length: 24
+< content-type: text/plain
+< date: Thu, 20 Jan 2022 11:57:42 GMT
 < server: istio-envoy
-< content-length: 0
-< 
-* Connection #1 to host 172.18.255.200 left intact
+
+sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0" HOST: "onlineboutique.example.com" http://172.18.255.200 -v
+* Closing connection -1
+*   Trying 172.18.255.200:80...
+* Connected to onlineboutique.example.com (172.18.255.200) port 80 (#0)
+> GET / HTTP/1.1
+> Host: onlineboutique.example.com
+> Accept: */*
+> User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 504 Gateway Timeout
+< content-length: 24
+< content-type: text/plain
+< date: Thu, 20 Jan 2022 12:04:59 GMT
+< server: istio-envoy
 
