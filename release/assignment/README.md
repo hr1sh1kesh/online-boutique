@@ -6,9 +6,9 @@ The host to be used is "onlineboutique.example.com" for the Ingress gateway. Any
 
 Applied below manifests to the cluster
 
-```
 To create Gateway
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
@@ -24,8 +24,10 @@ spec:
     hosts:
     - "onlineboutique.example.com"
 
+```
 To create Virtual Service
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -42,8 +44,10 @@ spec:
         port:
           number: 80
 
+```
 Test:
 
+```
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -H "HOST: onlineboutique.example.com" http://172.18.255.200 -v
 *   Trying 172.18.255.200:80...
 * Connected to 172.18.255.200 (172.18.255.200) port 80 (#0)
@@ -73,9 +77,9 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -H
 Split the traffic between the frontend and frontend-v2 service by 50%.
 The way to verify that this works is when 50% of the requests would show the landing page banner as "Free shipping with $100 purchase!" vs "Free shipping with $75 purchase!"
 
-```
 DestinationRule
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -89,9 +93,10 @@ spec:
   - name: v2
     labels:
       version: v2
-
+```
 Split traffic VirtualService modification:
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -112,9 +117,10 @@ spec:
         subset: v2
       weight: 50
      
-
+```
 Test:
 
+```
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "HOST: onlineboutique.example.com" http://172.18.255.200 -v | grep -i 'free shipping'
 *   Trying 172.18.255.200:80...
 * Connected to 172.18.255.200 (172.18.255.200) port 80 (#0)
@@ -162,9 +168,9 @@ Route traffic to the based on the browser being used.
 When you use Firefox the Gateway routes to the frontend service whereas it routes to the frontend-v2 pods if it is accessed via Chrome.
 Hint: use the user-agent HTTP header added by the browser.
 
-```
 Modified virtual service to route based on browser
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -191,9 +197,10 @@ spec:
     - destination:
         host: frontend
         subset: v2
-
+```
 Test:
 
+```
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:96.0) Gecko/20100101 Firefox/96.0" HOST: "onlineboutique.example.com" http://172.18.255.200 -v | grep -i 'free shipping'
 * Closing connection -1
 *   Trying 172.18.255.200:80...
@@ -284,12 +291,15 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
                 <div class="h-free-shipping">Free shipping with $100 purchase! &nbsp;&nbsp;</div>
 * Connection #0 to host onlineboutique.example.com left intact
 
+```
+
 4. Timeout:
 This is a slightly different lab. You need to tighten the boundaries of acceptable latency in this lab.
 Delete the productcatalogservice. There is a lot of latency between the frontend and the productcatalogv2 service. add a timeout of 3s. (You need to produce a 504 Gateway timeout error).
 
-```
 Created product-svc virtual service for productcatalogservice and added fault injection
+
+```
 
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -306,9 +316,11 @@ spec:
       delay:
         fixedDelay: 5s
         percent: 100
+```
 
-Added timeout in frontend Visrtual service
+Added timeout in frontend Vistual service
 
+```
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -338,8 +350,11 @@ spec:
         subset: v2
     timeout: 3s
 
+```
+
 Test:
 
+```
 sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36i" HOST: "onlineboutique.example.com" http://172.18.255.200 -v
 * Closing connection -1
 *   Trying 172.18.255.200:80...
@@ -372,3 +387,89 @@ sunil@SUNIL-PM:~/Documents/local-k8s/online-boutique/release/assignment$ curl -s
 < date: Thu, 20 Jan 2022 12:04:59 GMT
 < server: istio-envoy
 
+```
+
+5. TLS:
+Setup a TLS ingress gateway for the frontend service. Generate self signed certificates and add them to the Ingress Gateway for TLS communication.
+
+Generated ca, csr, cert, key using below openssl commands
+
+```
+
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -subj '/O=example Inc./CN=example.com' -keyout example.com.key -out example.com.crt
+
+openssl req -out onlineboutique.example.com.csr -newkey rsa:2048 -nodes -keyout onlineboutique.example.com.key -subj "/CN=onlineboutique.example.com/O=httpbin organization"
+
+openssl x509 -req -days 365 -CA example.com.crt -CAkey example.com.key -set_serial 0 -in onlineboutique.example.com.csr -out onlineboutique.example.com.crt
+
+```
+Created kubernetes secrets object for the cert and key
+
+```
+kubectl create -n istio-system secret tls onlineboutique-credential --key=onlineboutique.example.com.key --cert=onlineboutique.example.com.crt
+
+```
+
+Modfied gateway to use ssl
+
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: onlineboutique
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - "onlineboutique.example.com"
+    tls:
+      mode: SIMPLE
+      credentialName: onlineboutique-credential
+    
+```
+Modfied Virtual service for curl test
+
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: onlineboutique
+spec:
+  hosts:
+  - "onlineboutique.example.com"
+  gateways:
+  - onlineboutique
+  http:
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Firefox/.*"
+    route:
+    - destination:
+        host: frontend
+        subset: v1
+    timeout: 3s    
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Chrome/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v2
+    timeout: 3s
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*curl/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v1
+
+```

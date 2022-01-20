@@ -26,3 +26,11 @@ spec:
         host: frontend
         subset: v2
     timeout: 3s
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*curl/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v1
