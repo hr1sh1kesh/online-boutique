@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: onlineboutique
+spec:
+  hosts:
+  - "onlineboutique.example.com"
+  gateways:
+  - onlineboutique
+  http:
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Firefox/.*"
+    route:
+    - destination:
+        host: frontend
+        subset: v1
+    timeout: 3s    
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*Chrome/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v2
+    timeout: 3s
+  - match:
+    - headers:
+        user-agent:
+          regex: ".*curl/.*"
+    route:      
+    - destination:
+        host: frontend
+        subset: v1

@@ -158,7 +158,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.2.3
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.3.5
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -174,12 +174,12 @@ spec:
           value: "8080"
         - name: PRODUCT_CATALOG_SERVICE_ADDR
           value: "productcatalogservice:3550"
-        # - name: DISABLE_TRACING
-        #   value: "1"
-        # - name: DISABLE_PROFILER
-        #   value: "1"
-        # - name: DISABLE_DEBUGGER
-        #   value: "1"
+        - name: DISABLE_TRACING
+          value: "1"
+        - name: DISABLE_PROFILER
+          value: "1"
+        - name: DISABLE_DEBUGGER
+          value: "1"
         resources:
           requests:
             cpu: 100m
@@ -794,7 +794,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/adservice:v0.2.3
+        image: gcr.io/google-samples/microservices-demo/adservice:v0.3.5
         ports:
         - containerPort: 9555
         env:
